@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Users {
+  id            String          @id @default(uuid())
+  name          String          @unique
+  subscriptions Subscriptions[]
+  usageRecords  UsageRecords[]
+
+  @@map("users")
+}
+
+model Plans {
+  id                 String          @id @default(uuid())
+  name               String
+  monthlyQuota       Int
+  extraChargePerUnit Float
+  subscriptions      Subscriptions[]
+
+  @@map("plans")
+}
+
+model Subscriptions {
+  id        String   @id @default(uuid())
+  userId    String
+  planId    String
+  startDate DateTime
+  isActive  Boolean
+  user      Users    @relation(fields: [userId], references: [id])
+  plan      Plans    @relation(fields: [planId], references: [id])
+
+  @@map("subscriptions")
+}
+
+model UsageRecords {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  usedUnits Int
+  createdAt DateTime @default(now())
+  user      Users    @relation(fields: [userId], references: [id])
+
+  @@map("usage_records")
+}
